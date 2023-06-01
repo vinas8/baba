@@ -1,29 +1,41 @@
-// Setup the scene
-var canvas = document.getElementById("renderCanvas");
-var engine = new BABYLON.Engine(canvas, true);
-var scene = new BABYLON.Scene(engine);
+const createScene = () => {
+    const scene = new BABYLON.Scene(engine);
 
-// Create a camera
-var camera = new BABYLON.ArcRotateCamera("camera", 0, 0, 5, BABYLON.Vector3.Zero(), scene);
-camera.attachControl(canvas, true);
+    const camera = new BABYLON.ArcRotateCamera("Camera", - Math.PI / 2, Math.PI / 4, 10, BABYLON.Vector3.Zero());
+    camera.attachControl(canvas, true);
+	
+	const light1 = new BABYLON.DirectionalLight("DirectionalLight", new BABYLON.Vector3(0, -1, 1));
+    const light2 = new BABYLON.HemisphericLight("HemiLight", new BABYLON.Vector3(0, 1, 0));   
+    light1.intensity =0.75;
+    light2.intensity =0.5;
 
-// Create a light
-var light = new BABYLON.HemisphericLight("light", new BABYLON.Vector3(0, 1, 0), scene);
+    const box = BABYLON.MeshBuilder.CreateBox("box", {});
+    box.position.x = 2;
 
-// Create a sphere
-var sphere = BABYLON.MeshBuilder.CreateSphere("sphere", { diameter: 1 }, scene);
+    const frameRate = 10;
+ 
+    const xSlide = new BABYLON.Animation("xSlide", "position.x", frameRate, BABYLON.Animation.ANIMATIONTYPE_FLOAT, BABYLON.Animation.ANIMATIONLOOPMODE_CYCLE);
 
-// Rotate the sphere
-scene.registerBeforeRender(function () {
-    sphere.rotation.y += 0.01;
-});
+    const keyFrames = []; 
 
-// Run the render loop
-engine.runRenderLoop(function () {
-    scene.render();
-});
+    keyFrames.push({
+        frame: 0,
+        value: 2
+    });
 
-// Resize the engine on window resize
-window.addEventListener("resize", function () {
-    engine.resize();
-});
+    keyFrames.push({
+        frame: frameRate,
+        value: -2
+    });
+
+    keyFrames.push({
+        frame: 2 * frameRate,
+        value: 2
+    });
+
+    xSlide.setKeys(keyFrames);
+
+    scene.beginDirectAnimation(box, [xSlide], 0, 2 * frameRate, true);
+
+	return scene;
+};
