@@ -1,0 +1,55 @@
+// Enable Xbox 360 gamepad support
+BABYLON.Tools.GamepadSupport = true;
+
+var createScene = async function () {
+  var scene = new BABYLON.Scene(engine);
+  var camera = new BABYLON.ArcRotateCamera(
+    "camera",
+    BABYLON.Tools.ToRadians(90),
+    BABYLON.Tools.ToRadians(65),
+    10,
+    BABYLON.Vector3.Zero(),
+    scene
+  );
+  camera.attachControl(canvas, true);
+
+  // ... Add your scene setup code here ...
+
+  // Import the mesh and handle the callback
+  BABYLON.SceneLoader.ImportMesh(
+    "",
+    "https://models.babylonjs.com/",
+    "treasure_chest.glb",
+    scene,
+    function (newMeshes, particleSystems, skeletons) {
+      // Access the first skeleton in the skeletons array
+      var skeleton = skeletons[0];
+
+      // Create an Xbox controller object
+      var xboxController = new BABYLON.Xbox360Pad();
+
+      // Define a speed for the character's movement
+      var movementSpeed = 0.05;
+
+      // Set the Xbox controller to control the character's movement
+      xboxController.onleftstickchanged((values) => {
+        // Update the character's position based on the left stick input
+        skeleton.bones[0].position.x += values.x * movementSpeed;
+        skeleton.bones[0].position.z += values.y * movementSpeed;
+      });
+    }
+  );
+
+  return scene;
+};
+
+var engine = new BABYLON.Engine(canvas, true);
+var scene = await createScene();
+
+engine.runRenderLoop(function () {
+  scene.render();
+});
+
+window.addEventListener("resize", function () {
+  engine.resize();
+});
