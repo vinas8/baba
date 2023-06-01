@@ -1,6 +1,3 @@
-// Enable Xbox 360 gamepad support
-BABYLON.Tools.GamepadSupport = true;
-
 var createScene = function () {
   var scene = new BABYLON.Scene(engine);
   var camera = new BABYLON.ArcRotateCamera(
@@ -32,6 +29,41 @@ var createScene = function () {
   return scene;
 };
 
-var engine = new BABYLON.Engine(canvas, true);
 var scene = createScene();
 
+scene.actionManager = new BABYLON.ActionManager(scene);
+
+scene.actionManager.registerAction(
+  new BABYLON.ExecuteCodeAction(
+    BABYLON.ActionManager.OnKeyDownTrigger,
+    function (evt) {
+      if (evt.sourceEvent.key === "r") {
+        // Reset the ball's position when the "r" key is pressed
+        scene.getMeshByName("ball").position = BABYLON.Vector3.Zero();
+      }
+    }
+  )
+);
+
+scene.actionManager.registerAction(
+  new BABYLON.ExecuteCodeAction(
+    BABYLON.ActionManager.OnKeyUpTrigger,
+    function (evt) {
+      if (evt.sourceEvent.key === "c") {
+        // Change the ball's color when the "c" key is released
+        var ball = scene.getMeshByName("ball");
+        ball.material.diffuseColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+      }
+    }
+  )
+);
+
+scene.registerBeforeRender(function () {
+  // Rotate the ball slowly
+  var ball = scene.getMeshByName("ball");
+  ball.rotation.y += 0.01;
+});
+
+scene.debugLayer.show();
+
+scene.render();
